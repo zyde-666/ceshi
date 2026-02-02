@@ -262,29 +262,44 @@ function updateHUD() {
 }
 
 function drawBackground() {
-  ctx.fillStyle = "#0c1120";
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, "#10162a");
+  gradient.addColorStop(0.5, "#0b1325");
+  gradient.addColorStop(1, "#070b16");
+  ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "rgba(84, 110, 163, 0.2)";
-  for (let i = 0; i < 40; i += 1) {
-    const x = ((state.time * 0.2 + i * 120) % (canvas.width + 300)) - 150;
-    const y = 120 + (i % 8) * 30;
+  ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+  for (let i = 0; i < 80; i += 1) {
+    const x = (i * 137 + state.time * 0.4) % (canvas.width + 120) - 60;
+    const y = (i * 53) % 240;
+    const size = (i % 3) + 1;
+    ctx.fillRect(x, y, size, size);
+  }
+
+  ctx.fillStyle = "rgba(72, 105, 173, 0.24)";
+  for (let i = 0; i < 30; i += 1) {
+    const x = ((state.time * 0.18 + i * 140) % (canvas.width + 280)) - 140;
+    const y = 140 + (i % 6) * 28;
     ctx.beginPath();
-    ctx.ellipse(x, y, 60, 14, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y, 80, 18, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 }
 
 function drawRoom(room, offsetX) {
-  ctx.fillStyle = "#1a2135";
+  ctx.fillStyle = "#131a2d";
   ctx.fillRect(-offsetX, CONFIG.floor, canvas.width + 200, 80);
 
-  ctx.fillStyle = "#2b3350";
+  ctx.fillStyle = "#2a3554";
   for (const platform of room.platforms) {
     ctx.fillRect(platform.x - offsetX, platform.y, platform.width, platform.height);
+    ctx.fillStyle = "rgba(114, 156, 255, 0.2)";
+    ctx.fillRect(platform.x - offsetX, platform.y, platform.width, 3);
+    ctx.fillStyle = "#2a3554";
   }
 
-  ctx.fillStyle = "#e4c35a";
+  ctx.fillStyle = "#f3d676";
   for (const item of room.loot) {
     if (item.collected) continue;
     const bob = Math.sin(item.float) * 6;
@@ -295,7 +310,7 @@ function drawRoom(room, offsetX) {
 
   for (const enemy of room.enemies) {
     if (!enemy.alive) continue;
-    ctx.fillStyle = enemy.hitTimer > 0 ? "#ff8272" : "#9d4b57";
+    ctx.fillStyle = enemy.hitTimer > 0 ? "#ff8c86" : "#aa5561";
     ctx.fillRect(enemy.x - offsetX, enemy.y, enemy.width, enemy.height);
     ctx.fillStyle = "#120d12";
     ctx.fillRect(enemy.x - offsetX + 6, enemy.y + 8, 6, 6);
@@ -304,9 +319,9 @@ function drawRoom(room, offsetX) {
 
 function drawPlayer() {
   const { player } = state;
-  ctx.fillStyle = player.invincible > 0 ? "rgba(93, 214, 255, 0.8)" : "#6dd0ff";
+  ctx.fillStyle = player.invincible > 0 ? "rgba(120, 233, 255, 0.8)" : "#7be0ff";
   ctx.fillRect(player.x - state.cameraX, player.y, player.width, player.height);
-  ctx.fillStyle = "#0d1a2f";
+  ctx.fillStyle = "#0b1426";
   ctx.fillRect(
     player.x - state.cameraX + 8,
     player.y + 12,
@@ -361,15 +376,15 @@ function gameLoop() {
 function setKey(key, isDown) {
   switch (key) {
     case "a":
-    case "ArrowLeft":
+    case "arrowleft":
       state.input.left = isDown;
       break;
     case "d":
-    case "ArrowRight":
+    case "arrowright":
       state.input.right = isDown;
       break;
     case " ":
-    case "ArrowUp":
+    case "arrowup":
     case "w":
       state.input.jump = isDown;
       break;
