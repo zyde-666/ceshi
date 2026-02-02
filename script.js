@@ -290,12 +290,26 @@ function drawBackground() {
 function drawRoom(room, offsetX) {
   ctx.fillStyle = "#131a2d";
   ctx.fillRect(-offsetX, CONFIG.floor, canvas.width + 200, 80);
+  ctx.fillStyle = "rgba(20, 30, 52, 0.9)";
+  ctx.fillRect(-offsetX, CONFIG.floor, canvas.width + 200, 6);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+  for (let i = 0; i < 40; i += 1) {
+    ctx.fillRect(
+      -offsetX + (i * 90 + (state.time * 0.5) % 90),
+      CONFIG.floor + 16 + (i % 6) * 4,
+      6,
+      2
+    );
+  }
 
   ctx.fillStyle = "#2a3554";
   for (const platform of room.platforms) {
     ctx.fillRect(platform.x - offsetX, platform.y, platform.width, platform.height);
     ctx.fillStyle = "rgba(114, 156, 255, 0.2)";
     ctx.fillRect(platform.x - offsetX, platform.y, platform.width, 3);
+    ctx.strokeStyle = "rgba(18, 22, 38, 0.65)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(platform.x - offsetX, platform.y, platform.width, platform.height);
     ctx.fillStyle = "#2a3554";
   }
 
@@ -303,15 +317,20 @@ function drawRoom(room, offsetX) {
   for (const item of room.loot) {
     if (item.collected) continue;
     const bob = Math.sin(item.float) * 6;
+    ctx.shadowColor = "rgba(255, 216, 120, 0.5)";
+    ctx.shadowBlur = 10;
     ctx.beginPath();
     ctx.arc(item.x - offsetX, item.y + bob, 6, 0, Math.PI * 2);
     ctx.fill();
+    ctx.shadowBlur = 0;
   }
 
   for (const enemy of room.enemies) {
     if (!enemy.alive) continue;
     ctx.fillStyle = enemy.hitTimer > 0 ? "#ff8c86" : "#aa5561";
     ctx.fillRect(enemy.x - offsetX, enemy.y, enemy.width, enemy.height);
+    ctx.strokeStyle = "rgba(20, 10, 18, 0.7)";
+    ctx.strokeRect(enemy.x - offsetX, enemy.y, enemy.width, enemy.height);
     ctx.fillStyle = "#120d12";
     ctx.fillRect(enemy.x - offsetX + 6, enemy.y + 8, 6, 6);
   }
@@ -321,6 +340,8 @@ function drawPlayer() {
   const { player } = state;
   ctx.fillStyle = player.invincible > 0 ? "rgba(120, 233, 255, 0.8)" : "#7be0ff";
   ctx.fillRect(player.x - state.cameraX, player.y, player.width, player.height);
+  ctx.strokeStyle = "rgba(8, 12, 22, 0.7)";
+  ctx.strokeRect(player.x - state.cameraX, player.y, player.width, player.height);
   ctx.fillStyle = "#0b1426";
   ctx.fillRect(
     player.x - state.cameraX + 8,
@@ -373,38 +394,68 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-function setKey(key, isDown) {
-  switch (key) {
-    case "a":
-    case "arrowleft":
-      state.input.left = isDown;
-      break;
-    case "d":
-    case "arrowright":
-      state.input.right = isDown;
-      break;
-    case " ":
-    case "arrowup":
-    case "w":
-      state.input.jump = isDown;
-      break;
-    case "j":
-      state.input.attack = isDown;
-      break;
-    case "k":
-      state.input.dash = isDown;
-      break;
+function applyInput(action, isDown) {
+  if (!action) return;
+  state.input[action] = isDown;
+}
+
+function resolveActionFromEvent(event) {
+  switch (event.code) {
+    case "KeyA":
+    case "ArrowLeft":
+      return "left";
+    case "KeyD":
+    case "ArrowRight":
+      return "right";
+    case "Space":
+    case "KeyW":
+    case "ArrowUp":
+      return "jump";
+    case "KeyJ":
+      return "attack";
+    case "KeyK":
+      return "dash";
     default:
       break;
   }
+
+  const key = event.key?.toLowerCase();
+  switch (key) {
+    case "a":
+    case "arrowleft":
+      return "left";
+    case "d":
+    case "arrowright":
+      return "right";
+    case " ":
+    case "space":
+    case "spacebar":
+    case "arrowup":
+    case "w":
+      return "jump";
+    case "j":
+      return "attack";
+    case "k":
+      return "dash";
+    default:
+      return null;
+  }
+}
+
+function handleKeyEvent(event, isDown) {
+  const action = resolveActionFromEvent(event);
+  if (action) {
+    event.preventDefault();
+  }
+  applyInput(action, isDown);
 }
 
 window.addEventListener("keydown", (event) => {
-  setKey(event.key.toLowerCase(), true);
+  handleKeyEvent(event, true);
 });
 
 window.addEventListener("keyup", (event) => {
-  setKey(event.key.toLowerCase(), false);
+  handleKeyEvent(event, false);
 });
 
 window.addEventListener("blur", () => {
