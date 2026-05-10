@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>迷你横板肉鸽 - 像素旅者</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="hud">
+      <div class="title">像素旅者</div>
+      <div class="stats">
+        <span>生命 <strong id="hp">5</strong></span>
+        <span>金币 <strong id="gold">0</strong></span>
+        <span>连斩 <strong id="combo">0</strong></span>
+      </div>
+      <div class="controls">
+        <span>移动：A/D 或 ←/→</span>
+        <span>跳跃：Space/↑</span>
+        <span>攻击：J</span>
+        <span>冲刺：K</span>
+      </div>
+    </div>
+    <canvas id="game" width="960" height="540"></canvas>
+    <div class="tips" id="tips">进入新房间时会刷新敌人和奖励</div>
+    <script src="script.js"></script>
+  </body>
+</html>
