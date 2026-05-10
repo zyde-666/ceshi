@@ -101,7 +101,7 @@ function createRoom(index) {
 function getRoom(index) {
   if (!state.rooms.has(index)) {
     state.rooms.set(index, createRoom(index));
-    tipsEl.textContent = `进入房间 ${index + 1}：新的敌人与奖励刷新`; 
+    tipsEl.textContent = `进入房间 ${index + 1}：新的敌人与奖励刷新`;
   }
   return state.rooms.get(index);
 }
@@ -121,12 +121,16 @@ function rectsOverlap(a, b) {
 
 function resolveCollisions(player, platforms) {
   player.onGround = false;
-  const solids = [...platforms, {
-    x: -Infinity,
-    y: CONFIG.floor,
-    width: Infinity,
-    height: 60,
-  }];
+  const floorStartX = roomIndexForX(player.x) * CONFIG.roomWidth - CONFIG.roomWidth;
+  const solids = [
+    ...platforms,
+    {
+      x: floorStartX,
+      y: CONFIG.floor,
+      width: CONFIG.roomWidth * 3,
+      height: 60,
+    },
+  ];
 
   for (const platform of solids) {
     if (!rectsOverlap(player, platform)) continue;
